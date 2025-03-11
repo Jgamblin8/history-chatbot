@@ -1,308 +1,518 @@
 <!DOCTYPE html>
+<head>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+</head>
+
+
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>History Quiz Chatbot</title>
+    <title>GCSE History Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* Global Styles */
+        /* General Page Styling */
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #f5f5f5;
-            margin: 0;
+            min-height: 100vh;
         }
 
-        /* Chat Container */
-        .chat-container {
-            width: 350px;
-            height: 500px;
+        /* Main Container for Quiz */
+        .quiz-container {
+            width: 80%;
+            max-width: 1200px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+
+        /* Topic Cards Layout */
+        .topic-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .topic-card {
+            width: 250px;
+            height: 350px;
             background: #fff;
             border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
             overflow: hidden;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
         }
 
-        /* Chatbox */
-        #chatbox {
-            height: 400px;
+        .topic-card img {
+            width: 100%;
+            height: 50%;
+            object-fit: cover;
+        }
+
+        .topic-card-content {
             padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background: #f9f9f9;
-            border-bottom: 2px solid #ddd;
+            text-align: center;
         }
 
-        /* User and Bot Messages */
-        .user-message, .bot-message {
-            padding: 12px;
-            margin: 5px;
+        .topic-card:hover {
+            transform: scale(1.05);
+        }
+
+        /* Chat Area */
+        #chatbox {
+            width: 100%;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .user-message,
+        .bot-message {
+            padding: 10px;
             border-radius: 10px;
             max-width: 75%;
             word-wrap: break-word;
-            animation: messageFadeIn 0.5s ease-out;
         }
 
-        /* User Message Styles */
         .user-message {
-            background-color: #007bff;
+            background-color: #4CAF50;
             color: white;
             align-self: flex-end;
-            box-shadow: 0px 4px 12px rgba(0, 123, 255, 0.3);
         }
 
-        /* Bot Message Styles */
         .bot-message {
-            background-color: #e0e0e0;
-            align-self: flex-start;
+            background-color: #eeeeee;
             color: #333;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            align-self: flex-start;
         }
 
         /* Input Section */
         .input-container {
             display: flex;
-            padding: 10px;
-            background: #fff;
-            border-top: 2px solid #eee;
+            margin-top: 15px;
         }
 
-        /* Input Field */
         #userInput {
             flex: 1;
-            padding: 12px;
-            font-size: 14px;
-            border: 1px solid #ccc;
+            padding: 10px;
             border-radius: 25px;
+            border: 1px solid #ccc;
+            font-size: 16px;
             outline: none;
-            transition: border-color 0.3s ease;
+            margin-right: 10px;
         }
 
-        #userInput:focus {
-            border-color: #007bff;
-        }
-
-        /* Send Button */
         button {
-            padding: 12px 16px;
-            background-color: #007bff;
+            padding: 10px 20px;
+            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 25px;
             cursor: pointer;
-            margin-left: 10px;
-            font-size: 14px;
+            font-size: 16px;
             transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #45a049;
         }
 
-        /* Animation for messages */
-        @keyframes messageFadeIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* Question Button Styles */
+        /* Styling for Question Buttons */
         .question-btn {
-            padding: 10px;
-            margin: 5px;
-            background-color: #28a745;
+            background-color: #1e90ff;
             color: white;
-            border: none;
+            padding: 12px;
             border-radius: 10px;
+            border: none;
             cursor: pointer;
-            font-size: 14px;
+            transition: background-color 0.3s ease;
+            margin: 5px 0;
         }
 
         .question-btn:hover {
-            background-color: #218838;
+            background-color: #005bb5;
         }
+
     </style>
 </head>
 <body>
 
-    <div class="chat-container">
-        <div id="chatbox"></div>
-        <div class="input-container">
-            <input type="text" id="userInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">Send</button>
-        </div>
+<div class="quiz-container">
+    <h1>GCSE History Quiz</h1>
+    <div class="topic-cards" id="topicCards">
+        <!-- Topic cards will be displayed here -->
     </div>
 
-    <script>
-        // List of GCSE History questions and answers
-        const historyQuestions = [
-            {
-                question: "Who was the first President of the United States?",
-                options: ["George Washington", "Thomas Jefferson", "Abraham Lincoln", "John Adams"],
-                answer: "George Washington"
-            },
-            {
-                question: "In what year did World War II end?",
-                options: ["1945", "1939", "1918", "1965"],
-                answer: "1945"
-            },
-            {
-                question: "What event triggered the start of World War I?",
-                options: ["The assassination of Archduke Franz Ferdinand", "The invasion of Poland", "The bombing of Pearl Harbor", "The signing of the Treaty of Versailles"],
-                answer: "The assassination of Archduke Franz Ferdinand"
-            },
-            {
-                question: "Who was the leader of the Soviet Union during the Cuban Missile Crisis?",
-                options: ["Nikita Khrushchev", "Leon Trotsky", "Joseph Stalin", "Vladimir Lenin"],
-                answer: "Nikita Khrushchev"
-            },
-            {
-                question: "What was the main cause of the American Civil War?",
-                options: ["Slavery and states' rights", "Economic differences", "Western expansion", "Trade policies"],
-                answer: "Slavery and states' rights"
-            }
-        ];
+    <div id="chatbox" class="hidden">
+        <!-- Chat messages will appear here -->
+    </div>
 
-        let currentQuestionIndex = 0;
-        let score = 0;  // Variable to keep track of the score
-        let remainingQuestions = [...historyQuestions];  // Array to keep track of remaining questions
+    <div class="input-container">
+        <input type="text" id="userInput" placeholder="Type your message..." onkeydown="if(event.key === 'Enter'){sendMessage();}">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
 
-        // Function to shuffle the questions in random order
-        function shuffleQuestions() {
-            for (let i = remainingQuestions.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [remainingQuestions[i], remainingQuestions[j]] = [remainingQuestions[j], remainingQuestions[i]]; // Swap elements
-            }
+<script>
+    const topics = {
+        "Medicine through time": {
+            image: "https://embed-ssl.wistia.com/deliveries/ea3e66069c2c2b1a6274e603c2d62a2c.webp?image_crop_resized=820x461",
+            description: "Discover the evolution of medical practices through the ages.",
+            questions: [
+                {
+                    question: "What was the key discovery in medicine during the Renaissance?",
+                    answer: "The circulation of blood",
+                    choices: ["The circulation of blood", "The Germ Theory", "Vaccination", "Anesthesia"]
+                },
+                {
+                    question: "Who developed the theory of Germs causing disease?",
+                    answer: "Louis Pasteur",
+                    choices: ["Louis Pasteur", "Edward Jenner", "Hippocrates", "William Harvey"]
+                }
+            ]
+        },
+        "American West": {
+            image: "https://www.historyonthenet.com/wp-content/uploads/2014/07/28768994034_406e9f7d8e_b.jpg",
+            description: "Explore the Wild West and its legends and history.",
+            questions: [
+                {
+                    question: "What year did the American Civil War end?",
+                    answer: "1865",
+                    choices: ["1861", "1865", "1870", "1850"]
+                },
+                {
+                    question: "Who was the famous outlaw of the American West?",
+                    answer: "Billy the Kid",
+                    choices: ["Billy the Kid", "Jesse James", "Butch Cassidy", "Wild Bill Hickok"]
+                }
+            ]
+        },
+        "Henry VIII": {
+            image: "https://ychef.files.bbci.co.uk/1280x720/p0jn3q8w.jpg",
+            description: "Delve into the life and marriages of Henry VIII.",
+            questions: [
+                {
+                    question: "How many wives did Henry VIII have?",
+                    answer: "6",
+                    choices: ["4", "7", "6", "5"]
+                },
+                {
+                    question: "What was the name of Henry VIII's second wife?",
+                    answer: "Anne Boleyn",
+                    choices: ["Catherine of Aragon", "Anne Boleyn", "Jane Seymour", "Catherine Howard"]
+                }
+            ]
+        },
+        "Nazi Germany": {
+            image: "https://ichef.bbci.co.uk/images/ic/480xn/p03hdfnq.jpg",
+            description: "Learn about the rise of Nazi Germany and its impact on the world.",
+            questions: [
+                {
+                    question: "Who was the leader of Nazi Germany?",
+                    answer: "Adolf Hitler",
+                    choices: ["Adolf Hitler", "Joseph Stalin", "Benito Mussolini", "Heinrich Himmler"]
+                },
+                {
+                    question: "In what year did Hitler come to power?",
+                    answer: "1933",
+                    choices: ["1933", "1929", "1940", "1923"]
+                }
+            ]
+        }
+    };
+
+    let currentTopic = null;
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+
+    function displayTopicChoices() {
+        const topicCardsContainer = document.getElementById('topicCards');
+        Object.keys(topics).forEach(topic => {
+            const card = document.createElement('div');
+            card.classList.add('topic-card');
+            card.onclick = () => startQuiz(topic);
+            card.innerHTML = `
+                <img src="${topics[topic].image}" alt="${topic}">
+                <div class="topic-card-content">
+                    <h3>${topic}</h3>
+                    <p>${topics[topic].description}</p>
+                </div>
+            `;
+            topicCardsContainer.appendChild(card);
+        });
+    }
+
+    function startQuiz(topic) {
+        currentTopic = topic;
+        currentQuestions = [...topics[topic].questions];
+        currentQuestionIndex = 0;
+        document.querySelector('.quiz-container').classList.add('hidden');
+        document.getElementById('chatbox').classList.remove('hidden');
+        showNextQuestion();
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+        }
+    }
+
+    function showNextQuestion() {
+        const chatbox = document.getElementById("chatbox");
+
+        if (currentQuestionIndex >= currentQuestions.length) {
+            const finalMessage = document.createElement("div");
+            finalMessage.classList.add("bot-message");
+            finalMessage.textContent = `You've completed the quiz on ${currentTopic}. Great job!`;
+            chatbox.appendChild(finalMessage);
+            return;
         }
 
-        // Function to shuffle options for each question
-        function shuffleOptions(options) {
-            for (let i = options.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [options[i], options[j]] = [options[j], options[i]]; // Swap elements
-            }
+        const currentQuestion = currentQuestions[currentQuestionIndex];
+        currentQuestionIndex++;
+
+        shuffleArray(currentQuestion.choices);
+
+        const botMessage = document.createElement("div");
+        botMessage.classList.add("bot-message");
+        botMessage.textContent = currentQuestion.question;
+        chatbox.appendChild(botMessage);
+
+        currentQuestion.choices.forEach(choice => {
+            const button = document.createElement("button");
+            button.classList.add("question-btn");
+            button.textContent = choice;
+            button.onclick = () => checkAnswer(currentQuestion.answer, choice);
+            chatbox.appendChild(button);
+        });
+
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function checkAnswer(correctAnswer, selectedAnswer) {
+        const chatbox = document.getElementById("chatbox");
+
+        const userMessage = document.createElement("div");
+        userMessage.classList.add("user-message");
+        userMessage.textContent = `You: ${selectedAnswer}`;
+        chatbox.appendChild(userMessage);
+
+        const botMessage = document.createElement("div");
+        botMessage.classList.add("bot-message");
+        if (selectedAnswer === correctAnswer) {
+            botMessage.textContent = "Bot: Correct! 🎉";
+        } else {
+            botMessage.textContent = `Bot: Incorrect! The correct answer was "${correctAnswer}".`;
         }
+        chatbox.appendChild(botMessage);
 
-        // Function to start the quiz
-        function startQuiz() {
-            shuffleQuestions(); // Shuffle the questions before starting
-            showNextQuestion();
-        }
+        chatbox.scrollTop = chatbox.scrollHeight;
+        setTimeout(showNextQuestion, 1000);
+    }
 
-        // Function to display the next question from the remaining questions
-        function showNextQuestion() {
-            const chatbox = document.getElementById('chatbox');
+    function sendMessage() {
+        const userInput = document.getElementById("userInput").value;
+        const chatbox = document.getElementById("chatbox");
 
-            if (remainingQuestions.length === 0) {
-                const finalMessage = document.createElement('div');
-                finalMessage.classList.add('bot-message');
-                finalMessage.textContent = `You've completed all the questions! Your final score is ${score} out of ${historyQuestions.length}. 🎉`;
-                chatbox.appendChild(finalMessage);
-                return;
-            }
+        const userMessage = document.createElement("div");
+        userMessage.classList.add("user-message");
+        userMessage.textContent = `You: ${userInput}`;
+        chatbox.appendChild(userMessage);
 
-            const currentQuestion = remainingQuestions.pop(); // Get and remove the next question from the list
-            currentQuestionIndex++;
+        document.getElementById("userInput").value = "";
 
-            // Shuffle the options for the current question
-            shuffleOptions(currentQuestion.options);
-
-            // Display the question
-            const botMessage = document.createElement('div');
-            botMessage.classList.add('bot-message');
-            botMessage.textContent = currentQuestion.question;
+        if (userInput.toLowerCase().includes("start quiz")) {
+            displayTopicChoices();
+        } else {
+            const botMessage = document.createElement("div");
+            botMessage.classList.add("bot-message");
+            botMessage.textContent = "Bot: Sorry, I only help with GCSE History questions. Type 'start quiz' to begin.";
             chatbox.appendChild(botMessage);
-
-            // Display the options as buttons
-            currentQuestion.options.forEach(option => {
-                const button = document.createElement('button');
-                button.classList.add('question-btn');
-                button.textContent = option;
-                button.onclick = () => checkAnswer(currentQuestion, option);
-                chatbox.appendChild(button);
-            });
-
-            // Scroll to the bottom of the chatbox
-            chatbox.scrollTop = chatbox.scrollHeight;
         }
 
-        // Function to handle answer selection
-        function checkAnswer(question, selectedAnswer) {
-            const chatbox = document.getElementById('chatbox');
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }
 
-            // Display user's selected answer
-            const userMessage = document.createElement('div');
-            userMessage.classList.add('user-message');
-            userMessage.textContent = `You: ${selectedAnswer}`;
-            chatbox.appendChild(userMessage);
-
-            // Check if the selected answer is correct
-            const correctAnswer = question.answer;
-            const botMessage = document.createElement('div');
-            botMessage.classList.add('bot-message');
-            
-            if (selectedAnswer === correctAnswer) {
-                botMessage.textContent = `Bot: Correct! The answer is "${correctAnswer}".`;
-                score++;  // Increment score
-            } else {
-                botMessage.textContent = `Bot: Incorrect! The correct answer is "${correctAnswer}".`;
-            }
-            chatbox.appendChild(botMessage);
-
-            // Show next question
-            setTimeout(showNextQuestion, 1000); // Wait for 1 second before showing the next question
-
-            // Scroll to the bottom of the chatbox
-            chatbox.scrollTop = chatbox.scrollHeight;
-        }
-
-        // Function to handle the 'Enter' key press
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        // Function to send a message (the user can type in the input field)
-        function sendMessage() {
-            const userInput = document.getElementById('userInput').value;
-            const chatbox = document.getElementById('chatbox');
-
-            // Display user message
-            const userMessage = document.createElement('div');
-            userMessage.classList.add('user-message');
-            userMessage.textContent = `You: ${userInput}`;
-            chatbox.appendChild(userMessage);
-
-            // Clear input field
-            document.getElementById('userInput').value = '';
-
-            // If the user types 'start quiz', start the quiz
-            if (userInput.toLowerCase() === 'start quiz') {
-                startQuiz();
-            } else {
-                const botMessage = document.createElement('div');
-                botMessage.classList.add('bot-message');
-                botMessage.textContent = "Bot: Please type 'start quiz' to begin the quiz!";
-                chatbox.appendChild(botMessage);
-            }
-
-            // Scroll to the bottom of the chatbox
-            chatbox.scrollTop = chatbox.scrollHeight;
-        }
-    </script>
+    window.onload = displayTopicChoices;
+</script>
 
 </body>
 </html>
+<style>
+    /* General Page Styling */
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-image: url('https://media.istockphoto.com/id/185215276/photo/antique-books-in-a-library.jpg?s=612x612&w=0&k=20&c=G65nHS2qkFo0I_uEix23ZNiq5QuQBrZOcUlDYg-uarg='); /* Replace with your image URL */
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    /* Main Container for Quiz */
+    .quiz-container {
+        width: 80%;
+        max-width: 1200px;
+        background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #4CAF50;
+    }
+
+    /* Topic Cards Layout */
+    .topic-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .topic-card {
+        width: 250px;
+        height: 350px;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+        overflow: hidden;
+    }
+
+    .topic-card img {
+        width: 100%;
+        height: 50%;
+        object-fit: cover;
+    }
+
+    .topic-card-content {
+        padding: 15px;
+        text-align: center;
+    }
+
+    .topic-card:hover {
+        transform: scale(1.05);
+    }
+
+    /* Chat Area */
+    #chatbox {
+        width: 100%;
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .user-message,
+    .bot-message {
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 75%;
+        word-wrap: break-word;
+    }
+
+    .user-message {
+        background-color: #4CAF50;
+        color: white;
+        align-self: flex-end;
+    }
+
+    .bot-message {
+        background-color: #eeeeee;
+        color: #333;
+        align-self: flex-start;
+    }
+
+    /* Input Section */
+    .input-container {
+        display: flex;
+        margin-top: 15px;
+    }
+
+    #userInput {
+        flex: 1;
+        padding: 10px;
+        border-radius: 25px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        outline: none;
+        margin-right: 10px;
+    }
+
+    button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    /* Styling for Question Buttons */
+    .question-btn {
+        background-color: #1e90ff;
+        color: white;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin: 5px 0;
+    }
+
+    .question-btn:hover {
+        background-color: #005bb5;
+    }
+</style>

@@ -125,3 +125,17 @@ button:hover {
 .question-btn:hover {
     background-color: #005bb5;
 }
+.experience-btn {
+    margin-top: 10px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.experience-btn:hover {
+    background-color: #45a049;
+}
